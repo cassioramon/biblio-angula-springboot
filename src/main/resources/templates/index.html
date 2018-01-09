@@ -36,7 +36,7 @@
 	</style>
 	<script>		
 		angular.module("biblioteca", []);
-		angular.module("biblioteca",["ngRoute"]).controller("bibliotecaController", function ($scope, $http, $route) {
+		angular.module("biblioteca",["ngRoute"]).controller("bibliotecaController", function ($scope, $http, $route, $location, $window) {
 			$scope.app = "Biblioteca"
 			
 			$scope.livros = [];
@@ -70,6 +70,7 @@
 			    		alert('Erro! Contate o ADM!');
 			    });
 
+	            $window.location.reload();
 
 			};
 			
@@ -96,6 +97,7 @@
 				    console.log(rejection.data);
 				});
 
+				$window.location.reload();
 
 			};
 			
@@ -147,7 +149,7 @@
 			<option value="">Selecione uma Categoria</option>
 		</select>
 
-		<button class="btn btn-primary btn-block" ng-click="adicionarLivro(livro)" ng-disabled="!livro.titulo || !livro.autor">Salvar Livro</button>
+		<button class="btn btn-primary btn-block" ng-click="adicionarLivro(livro)" ng-disabled="!livro.titulo || !livro.autor || !livro.anoPublicacao || !livro.categoria">Salvar Livro</button>
 
 
 	</div>

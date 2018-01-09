@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="biblioteca" class="no-js">
+<head>
+	<meta charset="utf-8" />
+	<title>Sistema de Biblioteca</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/3.3.7/css/bootstrap.css" />
+    <script src="/webjars/angularjs/1.6.6/angular.js"></script>
+	<script src="/webjars/angularjs/1.6.6/angular-resource.js"></script>
+	<script src="/webjars/angularjs/1.6.6/angular-route.js"></script>
+	<script src="/js/app/app.js"></script>
+	<style>
+		.jumbotron {
+			width: 700px;
+			text-align: center;
+			margin-top: 20px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.table {
+			margin-top: 20px;
+		}
+
+		.form-control{
+			margin-bottom: 10px;
+		}
+
+		.selecionado {
+			background-color: yellow;
+		}
+
+		.negrito {
+			font-weight: bold;
+		}
+
+	</style>
+	<script>		
+		angular.module("biblioteca", []);
+		angular.module("biblioteca",["ngRoute"]).controller("bibliotecaController", function ($scope, $http, $route) {
+			$scope.app = "Biblioteca"
+			
+			$scope.livros = [];
+			
+			$http({method: 'GET', url: 'http://localhost:8080/buscarTodosLivros'})
+			.then(function(response){
+				$scope.livros = response.data;
+				console.log(response.data);
+			},function(response){
+				console.log(response.data);
+			});
+			
+			$scope.adicionarLivro = function (livro) {
+
+				$http({
+			        url: 'http://localhost:8080/salvarlivro',
+			        method: "POST",
+			        data: { 
+						'id': 0,
+						'titulo': livro.titulo,
+						'autor': livro.autor,
+						'categoria': livro.categoria.codigo,
+						'anoPublicacao': livro.anoPublicacao
+				        }
+			    })
+			    .then(function(response) {
+			            alert('Livro gravado com sucesso!');
+			            delete $scope.livro;
+			    }, 
+			    function(response) { 
+			    		alert('Erro! Contate o ADM!');
+			    });
+
+
+			};
+			
+			$scope.categorias = [ {nome : "Ficção", codigo: 1}, 
+									{nome : "Não-Ficção", codigo: 2}, 
+									{nome : "Auto-Ajuda", codigo: 3},
+									{nome : "Religioso", codigo: 4},
+									{nome : "Infantil", codigo: 5},
+									{nome : "Didático", codigo: 6},
+			];
+			
+			$scope.classe = "selecionado";
+			
+			$scope.apagarLivro = function (livro) {
+
+				$http({
+				    method: 'DELETE',
+				    url: 'http://localhost:8080/' + livro.id
+				    
+				})
+				.then(function(response) {
+				    console.log(response.data);
+				}, function(rejection) {
+				    console.log(rejection.data);
+				});
+
+
+			};
+			
+			$scope.isLivroSelecionado = function(livros) {
+				return livros.some(function (livro) {
+					return livro.selecionado;
+				});
+			};
+
+		});
+	</script>
+</head>
+
+<body ng-controller="bibliotecaController">
+	<div class="jumbotron">
+		<h3 ng-bind="app"></h3>
+		
+		<table class="table table-striped">
+			<tr>
+				<th></th>
+				<th>Código</th>
+				<th>Título</th>
+				<th>Autor</th>
+				<th>Ano Publicação</th>
+				<th>Categoria</th>	
+				<th></th>
+				<th></th>
+			</tr>	
+			<tr ng-class="{selecionado: livro.selecionado}" ng-repeat="livro in livros">
+				<!--td ng-repeat="(key, value) in contato">
+				{{value}}
+				</td-->
+				<td><input type="checkbox" ng-model="livro.selecionado"/></td>
+				<td>{{livro.id}}</td>
+				<td>{{livro.titulo}}</td>
+				<td>{{livro.autor}}</td>
+				<td>{{livro.anoPublicacao}}</td>
+				<td>{{livro.categoria}}</td>
+				<td><a ng-click="apagarLivro(livro)">Apagar</a></td>
+				<td><a ng-click="apagar(livro)">Alterar</a></td> 
+			</tr>
+		</table>
+		<hr/>
+		<input class="form-control" type="text" ng-model="livro.titulo" placeholder="Título"/>
+		<input class="form-control" type="text" ng-model="livro.autor" placeholder="Autor"/>
+		<input class="form-control" type="number" ng-model="livro.anoPublicacao" placeholder="Ano Publicação" maxlength="4" />
+
+		<select class="form-control" ng-model="livro.categoria" ng-options="categoria.nome for categoria in categorias" >
+			<option value="">Selecione uma Categoria</option>
+		</select>
+
+		<button class="btn btn-primary btn-block" ng-click="adicionarLivro(livro)" ng-disabled="!livro.titulo || !livro.autor">Salvar Livro</button>
+
+
+	</div>
+
+</body>
+</html>
